@@ -4,17 +4,20 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
+	osuparser "github.com/natsukagami/go-osu-parser"
 	"golang.org/x/sys/windows/registry"
 )
 
-//OsuSong {path-artist-title}
-type OsuSong struct {
-	Path   string
-	Artist string
-	Title  string
+type osuFileType struct {
+	artist        string
+	title         string
+	audiofilename string
+	path          string
+	audiopath     string
 }
 
 func test(s []string) {
@@ -34,6 +37,7 @@ func osufiletest(l []string) error {
 }
 
 func main() {
+
 	fmt.Println("Searching \"osu!\" folder.")
 	songsPath, err := osuSongsPath() //'%path_to_osu%/Songs'
 	if err != nil {
@@ -52,10 +56,52 @@ func main() {
 		fmt.Println("error:", err)
 	}
 	fmt.Println("..done")
-	err = osufiletest(osuFiles)
-	if err != nil {
-		fmt.Println(err)
+	osufiletest(osuFiles)
+
+	fmt.Println("Parse \".osu\" files.")
+	osuFile := map[int]osuFileType{}
+	var notexistfile []string
+	l := len(osuFiles) - 1
+	for i := 0; i < len(osuFiles); i++ {
+		osu, err := readosufile(osuFiles, i)
+		if err != nil {
+			fmt.Println(err)
+		}
+		osuFile[i] = osuFileType{
+			osu.Artist,
+			osu.Title,
+			osu.AudioFilename,
+			filepath.Dir(osuFiles[i]),
+			filepath.Join(filepath.Dir(osuFiles[i]), osu.AudioFilename)}
+		//fmt.Println(osuFile[i])
+		if _, err := os.Stat(osuFile[i].audiopath); os.IsNotExist(err) {
+			notexistfile = append(notexistfile, osuFile[i].path)
+			delete(osuFile, i)
+		}
+		fmt.Printf("%v of %v\n", i, l)
 	}
+	if len(notexistfile) > 0 {
+		err := notexisterror(notexistfile, ".mp3")
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	fmt.Println("..done")
+}
+
+func notexisterror(f []string, format string) error {
+	if len(f) > 0 {
+		fmt.Println("[EROOR] In folder(s):")
+		for _, l := range f {
+			fmt.Println("►", l)
+		}
+		fmt.Printf("...no have %s file. ", format)
+		fmt.Println("But you can ignore it.")
+	} else {
+		err := fmt.Errorf("No files")
+		return err
+	}
+	return nil
 }
 
 // return file.osu list with path
@@ -82,12 +128,10 @@ func osuFileList(sp []string) ([]string, error) {
 		}
 	}
 	if len(emptyFolders) > 0 {
-		fmt.Println("[EROOR] In folder(s):")
-		for _, l := range emptyFolders {
-			fmt.Println("►", l)
+		err = notexisterror(emptyFolders, ".osu")
+		if err != nil {
+			fmt.Println(err)
 		}
-		fmt.Printf("...no have .osu file. ")
-		fmt.Println("But you can ignore it.")
 	}
 	return osufilepath, nil
 }
@@ -101,9 +145,13 @@ func filePosition(lf []string) (int, error) {
 	return -1, nil
 }
 
-// func readosufile(f string) OsuSong {
-// 	return
-// }
+func readosufile(ls []string, p int) (b osuparser.Beatmap, err error) {
+	b, err = osuparser.ParseFile(ls[p])
+	if err != nil {
+		return b, err
+	}
+	return b, nil
+}
 
 //This function take path directory and return directory contents
 func lsSongFolder(songsPath string) ([]string, error) {
