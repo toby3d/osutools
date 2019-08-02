@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	osuparser "github.com/natsukagami/go-osu-parser"
 	"golang.org/x/sys/windows/registry"
 )
 
@@ -36,6 +35,21 @@ func osufiletest(l []string) error {
 	return nil
 }
 
+func notexisterror(f []string, format string) error {
+	if len(f) > 0 {
+		fmt.Println("[EROOR] In folder(s):")
+		for _, l := range f {
+			fmt.Println("►", l)
+		}
+		fmt.Printf("...no have %s file. ", format)
+		fmt.Println("But you can ignore it.")
+	} else {
+		err := fmt.Errorf("No files")
+		return err
+	}
+	return nil
+}
+
 func main() {
 
 	fmt.Println("Searching \"osu!\" folder.")
@@ -57,28 +71,23 @@ func main() {
 	}
 	fmt.Println("..done")
 	osufiletest(osuFiles)
-
+	readosufile(osuFiles[1525])
 	fmt.Println("Parse \".osu\" files.")
 	osuFile := map[int]osuFileType{}
 	var notexistfile []string
 	l := len(osuFiles) - 1
 	for i := 0; i < len(osuFiles); i++ {
-		osu, err := readosufile(osuFiles, i)
+		osu, err := readosufile(osuFiles[i])
 		if err != nil {
 			fmt.Println(err)
 		}
-		osuFile[i] = osuFileType{
-			osu.Artist,
-			osu.Title,
-			osu.AudioFilename,
-			filepath.Dir(osuFiles[i]),
-			filepath.Join(filepath.Dir(osuFiles[i]), osu.AudioFilename)}
-		//fmt.Println(osuFile[i])
+		osuFile[i] = osu
 		if _, err := os.Stat(osuFile[i].audiopath); os.IsNotExist(err) {
 			notexistfile = append(notexistfile, osuFile[i].path)
 			delete(osuFile, i)
 		}
-		fmt.Printf("%v of %v\n", i, l)
+		fmt.Printf("\n%v of %v\n", i, l)
+		fmt.Printf("Artist:%s\nTitle:%s\nAudioFileName:%s\nPath:%s\nAudioPath:%s\n", osuFile[i].artist, osuFile[i].title, osuFile[i].audiofilename, osuFile[i].path, osuFile[i].audiopath)
 	}
 	if len(notexistfile) > 0 {
 		err := notexisterror(notexistfile, ".mp3")
@@ -87,21 +96,6 @@ func main() {
 		}
 	}
 	fmt.Println("..done")
-}
-
-func notexisterror(f []string, format string) error {
-	if len(f) > 0 {
-		fmt.Println("[EROOR] In folder(s):")
-		for _, l := range f {
-			fmt.Println("►", l)
-		}
-		fmt.Printf("...no have %s file. ", format)
-		fmt.Println("But you can ignore it.")
-	} else {
-		err := fmt.Errorf("No files")
-		return err
-	}
-	return nil
 }
 
 // return file.osu list with path
@@ -145,12 +139,40 @@ func filePosition(lf []string) (int, error) {
 	return -1, nil
 }
 
-func readosufile(ls []string, p int) (b osuparser.Beatmap, err error) {
-	b, err = osuparser.ParseFile(ls[p])
+func readosufile(ls string) (osu osuFileType, err error) {
+	f, err := ioutil.ReadFile(ls)
 	if err != nil {
-		return b, err
+		return osu, err
 	}
-	return b, nil
+	var max int
+	r := parseosufile(string(f))
+	for i := 0; i < len(r); i++ {
+		if strings.HasPrefix(r[i], "AudioFilename:") {
+			s := strings.Split(r[i], ":")
+			max = len(s)
+			osu.audiofilename = strings.Join(s[1:max], "")
+			max = len(osu.audiofilename)
+			osu.audiofilename = osu.audiofilename[1:max]
+		}
+		if strings.HasPrefix(r[i], "Title:") {
+			s := strings.Split(r[i], ":")
+			max = len(s)
+			osu.title = strings.Join(s[1:max], "")
+		}
+		if strings.HasPrefix(r[i], "Artist:") {
+			s := strings.Split(r[i], ":")
+			max = len(s)
+			osu.artist = strings.Join(s[1:max], "")
+		}
+	}
+	osu.path = filepath.Dir(ls)
+	osu.audiopath = filepath.Join(filepath.Dir(ls), osu.audiofilename)
+	return osu, nil
+}
+
+func parseosufile(f string) (r []string) {
+	r = strings.Split(f, "\n")
+	return r
 }
 
 //This function take path directory and return directory contents
