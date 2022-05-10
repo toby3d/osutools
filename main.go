@@ -16,9 +16,8 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	if err := fh.GetSkins(); err != nil {
-		fmt.Println(err)
-		return
+	err := fh.ReadOsudbFile()
+	if err != nil {
+		panic(err)
 	}
-	fh.GetSkins()
 }

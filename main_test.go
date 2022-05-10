@@ -22,7 +22,8 @@ func TestFilePosition(t *testing.T) {
 	got := filePosition(path)
 	want := 3
 	if got != want {
-		t.Errorf("got %d want %d", got, want)
+		t.Errorf("got %d. want %d", got, want)
 		t.Fail()
 	}
+	t.Logf("got %d. want %d", got, want)
 }

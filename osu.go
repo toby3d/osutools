@@ -185,7 +185,6 @@ func osuFileList(sp []string) ([]string, error) {
 	var (
 		listFile, osufilepath, emptyFolders []string
 
-		p   int
 		err error
 	)
 	for i := 0; i < len(sp); i++ {
@@ -196,7 +195,7 @@ func osuFileList(sp []string) ([]string, error) {
 		if len(listFile) == 0 {
 			break
 		}
-		p = filePosition(listFile) //return position osu file
+		p := filePosition(listFile) //return position osu file
 		switch {
 		case p >= 0:
 			osufilepath = append(osufilepath, listFile[p])

@@ -4,13 +4,15 @@ import (
 	"errors"
 	"path/filepath"
 
+	"github.com/compico/osutools/pkg/encoding/database"
+	"github.com/compico/osutools/pkg/osu"
 	"golang.org/x/sys/windows/registry"
 )
 
 var unknownpath = errors.New("Unknown game path.")
 
 func (osufolder *OsuFolder) GetAllPaths() error {
-	if osufolder.gamePath == "" {
+	if osufolder.GamePath == "" {
 		return unknownpath
 	}
 	osufolder.initSongsPath()
@@ -19,15 +21,15 @@ func (osufolder *OsuFolder) GetAllPaths() error {
 }
 
 func (osufolder *OsuFolder) SetGamePath(gamepath string) {
-	osufolder.gamePath = gamepath
+	osufolder.GamePath = gamepath
 }
 
 func (osufolder *OsuFolder) initSongsPath() {
-	osufolder.songsPath = filepath.Join(osufolder.gamePath, "Songs")
+	osufolder.SongsPath = filepath.Join(osufolder.GamePath, "Songs")
 }
 
 func (osufolder *OsuFolder) initSkinsPath() {
-	osufolder.skinsPath = filepath.Join(osufolder.gamePath, "Skins")
+	osufolder.SkinsPath = filepath.Join(osufolder.GamePath, "Skins")
 }
 
 //For windows only
@@ -45,6 +47,16 @@ func (osufolder *OsuFolder) InitGamePathByReg() error {
 	path = path[1:]
 	path = filepath.Dir(path)
 
-	osufolder.gamePath = path
+	osufolder.GamePath = path
+	return nil
+}
+
+func (osufolder *OsuFolder) ReadOsudbFile() error {
+	osufolder.DataBase = new(osu.Database)
+	osufolder.DataBase.Beatmaps = make([]osu.Beatmap, 0)
+	err := database.Unmarshal(osufolder.GamePath+"/osu!.db", osufolder.DataBase)
+	if err != nil {
+		return err
+	}
 	return nil
 }

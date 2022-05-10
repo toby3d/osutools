@@ -10,20 +10,12 @@ import (
 //		*Parse ini file and get metadata
 //		*Get sounds path
 func (osufolder *OsuFolder) GetSkins() error {
-	err := osufolder.initSkins()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (osufolder *OsuFolder) initSkins() error {
-	if osufolder.skinsPath == "" {
+	if osufolder.SkinsPath == "" {
 		return errors.New("Folder not exist!")
 	}
 	var err error
 	oskins := newOsuSkins()
-	dirs, err := lsdir(osufolder.skinsPath)
+	dirs, err := lsdir(osufolder.SkinsPath)
 	if err != nil {
 		return err
 	}
