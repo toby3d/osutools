@@ -49,9 +49,10 @@ func lsDir(songsPath string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	var strList []string
-	for i := 0; i < len(songFolders); i++ {
-		strList = append(strList, filepath.Join(songsPath, songFolders[i].Name()))
+
+	strList := make([]string, len(songFolders))
+	for i, folder := range songFolders {
+		strList[i] = filepath.Join(songsPath, folder.Name())
 	}
 	return strList, nil
 }

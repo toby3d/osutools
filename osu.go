@@ -19,8 +19,11 @@ type osuFileType struct {
 	audiopath     string
 }
 
-func readosufile(ls string) (osu osuFileType, err error) {
-	var forbsymb = []string{"\\", "/", "*", ":", "?", "\"", "<", ">", "|"}
+var forbSymbols = []string{"\\", "/", "*", ":", "?", "\"", "<", ">", "|"}
+
+func readosufile(ls string) (osuFileType, error) {
+	var osu osuFileType
+
 	f, err := ioutil.ReadFile(ls)
 	if err != nil {
 		return osu, err
@@ -34,13 +37,15 @@ func readosufile(ls string) (osu osuFileType, err error) {
 		case strings.HasPrefix(r[i], "Title:"):
 			s := strings.Split(r[i], ":")
 			osu.title = strings.TrimSpace(strings.Join(s[1:], ""))
-			for _, v := range forbsymb {
+
+			for _, v := range forbSymbols {
 				osu.title = strings.ReplaceAll(osu.title, v, "")
 			}
 		case strings.HasPrefix(r[i], "Artist:"):
 			s := strings.Split(r[i], ":")
 			osu.artist = strings.TrimSpace(strings.Join(s[1:], ""))
-			for _, v := range forbsymb {
+
+			for _, v := range forbSymbols {
 				osu.artist = strings.ReplaceAll(osu.artist, v, "")
 			}
 		}
@@ -92,28 +97,20 @@ func extractmp3(songsPath string) {
 	fmt.Println("..done")
 	fmt.Println("Copy \".mp3\" files.")
 
-	switch {
-	case os.Args[3] == "2":
-		for i := 0; i < len(osuFile); i++ {
-			err = copyFileTwo(osuFile[i])
-			if err != nil {
-				fmt.Println(err)
-
-			}
-			fmt.Printf("%v/%v\n", i+1, len(osuFiles))
-		}
-		fmt.Println("..done")
-	default:
-		for i := 0; i < len(osuFile); i++ {
-			err = copyFileOne(osuFile[i])
-			if err != nil {
-				fmt.Println(err)
-
-			}
-			fmt.Printf("%v/%v\n", i+1, len(osuFiles))
-		}
-		fmt.Println("..done")
+	copyFileFunc := copyFileOne
+	if os.Args[3] == "2" {
+		copyFileFunc = copyFileTwo
 	}
+
+	for i := 0; i < len(osuFile); i++ {
+		if err = copyFileFunc(osuFile[i]); err != nil {
+			fmt.Println(err)
+		}
+
+		fmt.Printf("%v/%v\n", i+1, len(osuFiles))
+	}
+
+	fmt.Println("..done")
 }
 func copyFileOne(osufile osuFileType) error {
 	if _, err := os.Stat(osufile.audiopath); os.IsNotExist(err) {
