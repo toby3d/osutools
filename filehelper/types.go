@@ -1,18 +1,17 @@
 package filehelper
 
-import "github.com/compico/osutools/pkg/osu"
+import "github.com/compico/osutools/osu"
 
-type OsuSkin struct {
-	path string
-}
-
-type OsuSkins struct {
-	skin []OsuSkin
-}
 type OsuFolder struct {
+	DataBase  *osu.OsuDB
+	Skins     OsuSkins
 	GamePath  string
 	SongsPath string
 	SkinsPath string
-	Skins     OsuSkins
-	DataBase  *osu.OsuDB
+}
+type OsuSkins struct {
+	skin []OsuSkin
+}
+type OsuSkin struct {
+	path string
 }

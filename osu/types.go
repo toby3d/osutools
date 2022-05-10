@@ -2,12 +2,14 @@ package osu
 
 type (
 	PairIntDouble struct {
-		//The first bytes is 0x08
-		//follewed by an
-		Int int32 //0xFFFF (example)
-		//then 0x0D, followed by a
-		Double float64 //0xFFFFFFFF
+		// The first bytes is 0x08
+		// follewed by an
+		// 0xFFFF (int32)
+		// then 0x0D, followed by a
+		// 0xFFFFFFFF (float64)
 		// result 0x08FFFF0DFFFFFFFF
+		Double float64
+		Int    int32
 	}
 	TimingPoint struct {
 		Todo []byte
@@ -16,17 +18,22 @@ type (
 )
 
 type OsuDB struct {
+	Beatmaps         []Beatmap
+	PlayerName       string
+	DateUnlocked     float64
 	Version          int32
 	FolderCount      int32
-	AccountUnlocked  bool
-	DateUnlocked     float64
-	PlayerName       string
 	NumberOfBeatmaps int32
-	Beatmaps         []Beatmap
 	Permissions      int32
+	AccountUnlocked  bool
 }
 
 type Beatmap struct {
+	TimingPoints         []TimingPoint
+	OsuModeStars         []PairIntDouble
+	TaikoModeStars       []PairIntDouble
+	CTBModeStars         []PairIntDouble
+	ManiaModeStars       []PairIntDouble
 	ArtistName           string
 	ArtistNameUni        string
 	SongTitle            string
@@ -36,49 +43,44 @@ type Beatmap struct {
 	AudioFileName        string
 	MD5Hash              string
 	NameOfTheOsuFile     string
-	RankedStatus         byte
-	NumberOfHitcircles   int16
-	NumberOfSliders      int16
-	NumberOfSpinners     int16
+	SongSource           string
+	SongTags             string
+	TitleFont            string
+	FolderName           string
+	SliderVelocity       float64
+	LastCheckedOsuRepo   int64
 	LastModification     int64
+	LastPlay             int64
 	ApproachRate         float32
 	CircleSize           float32
 	HPDrain              float32
 	OverallDifficulty    float32
-	SliderVelocity       float64
-	OsuModeStars         []PairIntDouble
-	TaikoModeStars       []PairIntDouble
-	CTBModeStars         []PairIntDouble
-	ManiaModeStars       []PairIntDouble
+	StackLeniency        float32
 	DrainTime            int32
 	TotalTime            int32
 	PreviewAudioTime     int32
-	TimingPoints         []TimingPoint
 	DifficultyID         int32
 	BeatmapID            int32
 	ThreadID             int32
+	LastModificationTime int32
+	NumberOfHitcircles   int16
+	NumberOfSliders      int16
+	NumberOfSpinners     int16
+	LocalOffset          int16
+	OnlineOffset         int16
+	Unknown              int16
+	RankedStatus         byte
 	GradeAchievedOsu     byte
 	GradeAchievedTaiko   byte
 	GradeAchievedCTB     byte
 	GradeAchievedMania   byte
-	LocalOffset          int16
-	StackLeniency        float32
 	Mode                 byte //0x00 = osu, 0x01 = taiko, 0x02 ctb, 0x03 = mania
-	SongSource           string
-	SongTags             string
-	OnlineOffset         int16
-	TitleFont            string
+	ManiaScrollSpeed     byte
 	Unplayed             bool
-	LastPlay             int64
 	IsOsz2               bool
-	FolderName           string
-	LastCheckedOsuRepo   int64
 	IgnoreSound          bool
 	IgnoreSkin           bool
 	DisableStoryboard    bool
 	DisableVideo         bool
 	VisualOverride       bool
-	Unknown              int16
-	LastModificationTime int32
-	ManiaScrollSpeed     byte
 }

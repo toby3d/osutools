@@ -7,7 +7,7 @@ import (
 	"math"
 
 	"github.com/bnch/uleb128"
-	"github.com/compico/osutools/pkg/osu"
+	"github.com/compico/osutools/osu"
 )
 
 var (
@@ -27,7 +27,7 @@ func Unmarshal(filepath string, database *osu.OsuDB) (err error) {
 	database.DateUnlocked = decodeDouble()
 	database.PlayerName = decodeString()
 	database.NumberOfBeatmaps = decodeInt()
-	for i := 0; i < int(database.NumberOfBeatmaps); i++ { // int(database.NumberOfBeatmaps)
+	for i := 0; i < int(database.NumberOfBeatmaps); i++ {
 		bm := new(osu.Beatmap)
 		bm.ArtistName = decodeString()
 		bm.ArtistNameUni = decodeString()
@@ -167,7 +167,6 @@ func decodeTimingPoint() osu.TimingPoint {
 }
 
 func decodePairsIntDouble() []osu.PairIntDouble {
-	// fmt.Printf("%x == %x == %v\n", scanner, target[scanner], (binary.LittleEndian.Uint32((target[scanner : scanner+4]))))
 	c := int(decodeInt())
 	pairs := make([]osu.PairIntDouble, 0)
 	for i := 0; i < c; i++ {
