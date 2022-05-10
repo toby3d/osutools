@@ -15,7 +15,8 @@ var (
 	target  []byte
 )
 
-func Unmarshal(filepath string, database *osu.Database) (err error) {
+func Unmarshal(filepath string, database *osu.OsuDB) (err error) {
+	scanner = 0
 	target, err = ioutil.ReadFile(filepath)
 	if err != nil {
 		return err
@@ -131,11 +132,11 @@ func decodeBoolean() bool {
 }
 
 func decodeString() string {
-	if target[scanner] == 0x00 {
+	switch target[scanner] {
+	case 0x00:
 		scanner++
 		return ""
-	}
-	if target[scanner] == 0x0b {
+	case 0x0b:
 		scanner++
 		sizebytes := uleb128.UnmarshalReader(bytes.NewReader([]byte{target[scanner]}))
 		if sizebytes < int(target[scanner]) {
@@ -143,10 +144,9 @@ func decodeString() string {
 			scanner++
 		}
 		scanner++
-		var stringbuff bytes.Buffer
-		stringbuff.Write(target[scanner : scanner+sizebytes])
+		x := string(target[scanner : scanner+sizebytes])
 		scanner += sizebytes
-		return stringbuff.String()
+		return x
 	}
 	return ""
 }

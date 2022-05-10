@@ -14,5 +14,5 @@ type OsuFolder struct {
 	SongsPath string
 	SkinsPath string
 	Skins     OsuSkins
-	DataBase  *osu.Database
+	DataBase  *osu.OsuDB
 }

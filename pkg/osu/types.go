@@ -1,14 +1,6 @@
 package osu
 
 type (
-	Int           int32
-	Short         int8
-	Byte          byte
-	Long          int64
-	Single        float32
-	Double        float64
-	Boolean       bool
-	String        string
 	PairIntDouble struct {
 		//The first bytes is 0x08
 		//follewed by an
@@ -23,7 +15,7 @@ type (
 	DateTime float64
 )
 
-type Database struct {
+type OsuDB struct {
 	Version          int32
 	FolderCount      int32
 	AccountUnlocked  bool

@@ -9,6 +9,7 @@ import (
 //		*Get images path
 //		*Parse ini file and get metadata
 //		*Get sounds path
+
 func (osufolder *OsuFolder) GetSkins() error {
 	if osufolder.SkinsPath == "" {
 		return errors.New("Folder not exist!")

@@ -1,7 +1,9 @@
 package filehelper
 
 import (
+	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"path/filepath"
 
 	"github.com/compico/osutools/pkg/encoding/database"
@@ -52,11 +54,24 @@ func (osufolder *OsuFolder) InitGamePathByReg() error {
 }
 
 func (osufolder *OsuFolder) ReadOsudbFile() error {
-	osufolder.DataBase = new(osu.Database)
+	osufolder.DataBase = new(osu.OsuDB)
 	osufolder.DataBase.Beatmaps = make([]osu.Beatmap, 0)
 	err := database.Unmarshal(osufolder.GamePath+"/osu!.db", osufolder.DataBase)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (osufolder *OsuFolder) JsonToDatabase(file string) error {
+	osufolder.DataBase = new(osu.OsuDB)
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(b, osufolder.DataBase)
+	if err != nil {
+		return err
+	}
+	return err
 }

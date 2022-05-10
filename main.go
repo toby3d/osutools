@@ -20,4 +20,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	// f, err := os.Create("./osu!.db.json")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer f.Close()
+	// bjson, err := json.Marshal(fh.DataBase)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// f.Write(bjson)
 }
