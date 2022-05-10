@@ -11,9 +11,6 @@ func BenchmarkUnmarshal(b *testing.B) {
 	if err := fh.InitGamePathByReg(); err != nil {
 		b.Log(err.Error())
 	}
-	if err := fh.GetAllPaths(); err != nil {
-		b.Log(err.Error())
-	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
