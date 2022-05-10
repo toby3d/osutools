@@ -13,7 +13,7 @@ import (
 
 var unknownpath = errors.New("Unknown game path.")
 
-func (osufolder *OsuFolder) GetAllPaths() error {
+func (osufolder *OsuFolder) getAllPaths() error {
 	if osufolder.GamePath == "" {
 		return unknownpath
 	}
@@ -50,6 +50,11 @@ func (osufolder *OsuFolder) InitGamePathByReg() error {
 	path = filepath.Dir(path)
 
 	osufolder.GamePath = path
+
+	err = osufolder.getAllPaths()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
